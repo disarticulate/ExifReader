@@ -11,7 +11,7 @@ import Tags from './tags';
 import IptcTags from './iptc-tags';
 import XmpTags from './xmp-tags';
 
-export function load(data) {
+export function load(data,options={ flat:true }) {
     let dataView;
 
     try {
@@ -21,10 +21,10 @@ export function load(data) {
         return {};
     }
 
-    return loadView(dataView);
+    return loadView(dataView, options);
 }
 
-export function loadView(dataView) {
+export function loadView(dataView, options) {
     let foundMetaData = false;
     let tags = {};
 
@@ -33,15 +33,24 @@ export function loadView(dataView) {
 
     if (hasExifData(tiffHeaderOffset)) {
         foundMetaData = true;
-        tags = Object.assign({}, tags, Tags.read(dataView, tiffHeaderOffset));
-    }
+        let tiff = Tags.read(dataView, tiffHeaderOffset)
+        (options.flat)
+            ? tags = Object.assign({}, tags, tiff)
+            : tags.tiff = tiff
+    }       
     if (hasIptcData(iptcDataOffset)) {
         foundMetaData = true;
-        tags = Object.assign({}, tags, IptcTags.read(dataView, iptcDataOffset));
+        let iptc = IptcTags.read(dataView, iptcDataOffset)
+        (options.flat)
+            ? tags = Object.assign({}, tags, iptc)
+            : tags.iptc = tiff
     }
     if (hasXmpData(xmpDataOffset)) {
         foundMetaData = true;
-        tags = Object.assign({}, tags, XmpTags.read(dataView, xmpDataOffset, xmpFieldLength));
+        let xmp = XmpTags.read(dataView, xmpDataOffset, xmpFieldLength)
+        (options.flat)
+            ? tags = Object.assign({}, tags, iptc)
+            : tags.xmp = xmp
     }
     if (!foundMetaData) {
         throw new Error('No Exif data');
