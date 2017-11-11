@@ -27,6 +27,7 @@
     "xmldom": "^0.1.27"
   },
   "scripts": {
+    "git": "npm run build && git add . && git commit -m 'intermediate' && git push",
     "build": "$(npm bin)/webpack ./src/exif-reader.js ./dist/exif-reader.js",
     "lint": "$(npm bin)/eslint .",
     "precommit": "npm run lint && npm test",
